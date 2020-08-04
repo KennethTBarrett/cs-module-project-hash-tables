@@ -5,7 +5,8 @@ class LinkedList:
     def find(self, value):
         current = self.head
 
-        while current is not None:
+        # Ensure current still exists, and traverse through list.
+        while current:
             if current.value == value:
                 return current
             current = current.next
