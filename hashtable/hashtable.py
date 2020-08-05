@@ -165,10 +165,11 @@ class HashTable:
         # Set new storage.
         new_storage = [LinkedList()] * new_capacity
 
-        for i in self.storage:  # For all linked lists in our new storage...
+        for i in self.storage:  # For all items  in our existing storage...
             current = i.head  # Set current to be our head.
             while current:  # So long as current still exists...
-                hash_index = self.hash_index(current.key)  # Set our hash index to be its key.
+                # We need to calculate our hash index based upon our new specified capcacity.
+                hash_index = self.hash_index(current.key)
                 if new_storage[hash_index].head == None:  # If the head exists,
                     # Set our hash table entry to be the head.
                     new_storage[hash_index].head = HashTableEntry(current.key, current.value)
