@@ -1,8 +1,17 @@
-# Your code here
+import timeit
 
+
+cache = {}
 
 def expensive_seq(x, y, z):
-    # Your code here
+    # Check if values are in cache. If they're not...
+    if (x, y, z) not in cache:
+        if x <= 0:  # Confirm x is 0 or greater. If it is,
+            cache[(x, y, z)] = y + z  # Add to cache.
+        else:  # If x is < 0...
+            # Recursively make cache entries based upon the expensive sequence.
+            cache[(x, y, z)] = expensive_seq(x-1,y+1,z) + expensive_seq(x-2,y+2,z*2) + expensive_seq(x-3,y+3,z*3)
+    return cache[(x, y, z)]
 
 
 
