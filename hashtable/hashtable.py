@@ -26,7 +26,6 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity
         self.storage = [LinkedList()] * capacity
-        self.count = 0
         self.size = 0
 
 
