@@ -1,14 +1,14 @@
 import math
 import random
+import time
 
+# def slowfun_too_slow(x, y):
+#     v = math.pow(x, y)
+#     v = math.factorial(v)
+#     v //= (x + y)
+#     v %= 982451653
 
-def slowfun_too_slow(x, y):
-    v = math.pow(x, y)
-    v = math.factorial(v)
-    v //= (x + y)
-    v %= 982451653
-
-    return v
+#     return v
 
 # Empty dict to populate.
 cache = {}
@@ -34,7 +34,9 @@ def slowfun(x, y):
 
 # Do not modify below this line!
 
+start = time.time()
 for i in range(50000):
     x = random.randrange(2, 14)
     y = random.randrange(3, 6)
     print(f'{i}: {x},{y}: {slowfun(x, y)}')
+print("Execution time:", time.time() - start)
