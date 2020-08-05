@@ -25,8 +25,8 @@ class HashTable:
 
     def __init__(self, capacity):
         self.capacity = capacity
-        self.bucket = [None for i in range(capacity)]
         self.storage = [LinkedList()] * capacity
+        self.count = 0
         self.size = 0
 
 
@@ -41,7 +41,7 @@ class HashTable:
 
         Implement this.
         """
-        return len(self.bucket)
+        return len(self.storage)
 
 
     def get_load_factor(self):
@@ -53,17 +53,16 @@ class HashTable:
         load_factor = self.size / self.capacity
         return load_factor
 
-
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
 
         Implement this, and/or FNV-1.
         """
-        hash = 5381
+        hashed = 5381
         for c in key:
-            hash = (hash * 33) + ord(c)
-        return hash
+            hashed = (hashed * 33) + ord(c)
+        return hashed
 
 
     def hash_index(self, key):
@@ -81,20 +80,25 @@ class HashTable:
 
         Implement this.
         """
-        # Save our hash index, as well as current to traverse LinkedList.
         hash_index = self.hash_index(key)
-        current = self.storage[hash_index].head
 
-        # So long as we have a current value...
-        while current:
-            if current.key == key:  # If its key matches our input key...
-                current.value = value  # Set its value to the input value.
-            current = current.next  # Continue traversing list.
-
-        # Create a new hash table entry, and add it to our Linked List's head.
-        entry = HashTableEntry(key, value)
-        self.storage[hash_index].add_to_head(entry)
-        self.size += 1  # Add 1 to our size.
+        # Check if LinkedList is empty. If it is...
+        if self.storage[hash_index].head == None:
+            # Set the head to be our entry, change size.
+            self.storage[hash_index].head = HashTableEntry(key, value)
+            self.size += 1
+            return None
+        else:  # If it's not...
+            # Set our current value to be our head.
+            current = self.storage[hash_index].head
+            # So long as there's a next value, check for key match.
+            while current.next:
+                if current.key == key:  # If match found...
+                    current.value = value  # Update value.
+                current = current.next  # Next
+            # Set our next value to be an entry node.
+            current.next = HashTableEntry(key, value)
+            self.size += 1
 
 
     def delete(self, key):
@@ -105,14 +109,25 @@ class HashTable:
 
         Implement this.
         """
-        # We should be able to just use our .put() method,
-        # and set its value to None.
+        hash_index = self.hash_index(key)
+        current = self.storage[hash_index].head
 
-        if self.get(key) == None:
-            warnings.warn('Warning: Key not found in hash table.')
-        else:
-            self.put(key, None)
-            self.size -= 1
+        # If our head is the key, simply set new head to be the next.
+        if current.key == key:
+            self.storage[hash_index].head = self.storage[hash_index].head.next
+            self.size -= 1  # Modify size.
+            return None
+        # So long as there's a next value...
+        while current.next:
+            # Go to next, with a pointer to the current node `prev`
+            prev = current
+            current = current.next
+            # Check for key match
+            if current.key == key:
+                # Set pointer.
+                prev.next = current.next
+                self.size -= 1  # Alter size.
+                return None
 
 
     def get(self, key):
@@ -125,11 +140,17 @@ class HashTable:
         """
         hash_index = self.hash_index(key)
         current = self.storage[hash_index].head
-
-        while current:
-            if current.key == key:
-                return current.value
+        # Check if we have an entry
+        if current == None:
+            return None
+        # Check for key match, return value if found.
+        if current.key == key:
+            return current.value
+        # Otherwise, search for our key match, and return value.
+        while current.next:  # Traversing, checking for key match.
             current = current.next
+            if current.key == key:  # If we find it...
+                return current.value  # Return the value.
         return None
 
 
@@ -140,9 +161,29 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # Change our capacity.
+        self.capacity = new_capacity
+        # Set new storage.
+        new_storage = [LinkedList()] * new_capacity
 
-
+        for i in self.storage:  # For all linked lists in our new storage...
+            current = i.head  # Set current to be our head.
+            while current:  # So long as current still exists...
+                hash_index = self.hash_index(current.key)  # Set our hash index to be its key.
+                if new_storage[hash_index].head == None:  # If the head exists,
+                    # Set our hash table entry to be the head.
+                    new_storage[hash_index].head = HashTableEntry(current.key, current.value)
+                else:  # If it does not exist...
+                    # Create our entry node from the current key and value.
+                    entry_node = HashTableEntry(current.key, current.value)
+                    # Assign its next value to be the head.
+                    entry_node.next = new_storage[hash_index].head
+                    # Set the head of our new storage (at hash index) to be our entry node.
+                    new_storage[hash_index].head = entry_node
+                # Go to next value
+                current = current.next
+        self.storage = new_storage  # Set our storage to be new_storage.
+    
 
 if __name__ == "__main__":
     ht = HashTable(8)
